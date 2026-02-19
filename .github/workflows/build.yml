@@ -1,1 +1,44 @@
+name: Compilar APK
 
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Baixa o código do repositório
+    - name: Baixar código
+      uses: actions/checkout@v3
+
+    # 2. Instala o Java (necessário para o Android)
+    - name: Instalar Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    # 3. Configura o Android SDK
+    - name: Configurar Android SDK
+      uses: android-actions/setup-android@v2
+
+    # 4. Instala o NDK (necessário para compilar C++)
+    - name: Instalar NDK
+      run: echo "y" | sdkmanager "ndk;25.2.9519653"
+
+    # 5. Dá permissão para o gradlew rodar
+    - name: Permissão gradlew
+      run: chmod +x ./gradlew
+
+    # 6. Compila o APK
+    - name: Compilar APK
+      run: ./gradlew assembleDebug
+
+    # 7. Salva o APK para você baixar
+    - name: Salvar APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: meu-app-debug
+        path: app/build/outputs/apk/debug/app-debug.apk
